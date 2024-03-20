@@ -14,9 +14,11 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import z from "zod";
+import z, { ZodError } from "zod";
 import { AuthCredentialsValidator } from "@/validators/auth-credentials";
 import { useForm } from "react-hook-form";
+import { trpc } from "@/trpc/client";
+import { toast } from "sonner";
 
 type Props = {};
 
@@ -29,8 +31,18 @@ const SignUp = (props: Props) => {
     resolver: zodResolver(AuthCredentialsValidator),
   });
 
+  const { mutate: createUser, isLoading } = trpc.auth.createUser.useMutation({
+    onError: (error) => {
+      if (error instanceof ZodError) {
+        toast.error(error.issues[0].message);
+        return;
+      }
+      toast.error("Something went wrong. Please try again.");
+    },
+  });
+
   const onSubmit = ({ email, password }: AuthCredentialsValidator) => {
-    console.log({ email, password });
+    createUser({ email, password });
   };
 
   return (
@@ -62,13 +74,22 @@ const SignUp = (props: Props) => {
           />
         </CardContent>
         <CardFooter>
-          <Button className="">Sign Up</Button>
+          <Button disabled={isLoading} className="">
+            Sign Up
+          </Button>
           <Link
             className={buttonVariants({ variant: "link" })}
             href={"/sign-in"}
           >
             Already have an account? Sign In
           </Link>
+          <Button
+            onClick={() =>
+              createUser({ email: "invalidemail", password: "smol" })
+            }
+          >
+            Test
+          </Button>
         </CardFooter>
       </form>
     </Card>
