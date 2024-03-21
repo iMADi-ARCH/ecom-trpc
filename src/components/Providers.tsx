@@ -4,6 +4,7 @@ import { ReactNode, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { trpc } from "@/trpc/client";
 import { httpBatchLink } from "@trpc/react-query";
+import { ClerkProvider } from "@clerk/nextjs";
 
 type Props = {
   children?: ReactNode;
@@ -27,7 +28,7 @@ const Providers = ({ children }: Props) => {
     <>
       <trpc.Provider client={trpcClient} queryClient={queryClient}>
         <QueryClientProvider client={queryClient}>
-          {children}
+          <ClerkProvider>{children}</ClerkProvider>
         </QueryClientProvider>
       </trpc.Provider>
     </>

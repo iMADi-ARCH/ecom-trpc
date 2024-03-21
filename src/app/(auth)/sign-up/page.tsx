@@ -33,8 +33,8 @@ const SignUp = (props: Props) => {
 
   const { mutate: createUser, isLoading } = trpc.auth.createUser.useMutation({
     onError: (error) => {
-      if (error instanceof ZodError) {
-        toast.error(error.issues[0].message);
+      if (error.data?.zodError) {
+        toast.error(error.data.zodError.issues[0].message);
         return;
       }
       toast.error("Something went wrong. Please try again.");
@@ -73,7 +73,7 @@ const SignUp = (props: Props) => {
             id="password"
           />
         </CardContent>
-        <CardFooter>
+        <CardFooter className="flex-col md:flex-row items-start">
           <Button disabled={isLoading} className="">
             Sign Up
           </Button>
@@ -83,13 +83,6 @@ const SignUp = (props: Props) => {
           >
             Already have an account? Sign In
           </Link>
-          <Button
-            onClick={() =>
-              createUser({ email: "invalidemail", password: "smol" })
-            }
-          >
-            Test
-          </Button>
         </CardFooter>
       </form>
     </Card>
